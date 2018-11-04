@@ -1,0 +1,68 @@
+#convolutions.py
+import numpy as np
+from sklearn.preprocessing omport MinMaxScaler
+import activation as a
+from PIL import image
+def convoluteOne(self, img):
+    donvolutions = np.zeros((400, 81))
+    feature_map = np.zeros((400,))
+    feature_maps = np.array(())
+    scale = MinMaxScaler(feature_range(0,, 255))
+    img = img.reshape((28, 28))
+    img = scale.fit_transform(img)
+    img = Image.fromarray(img)
+    count = 0
+    
+    #retrieve the receptive field from the training data
+    for row in range (0, 20):
+        for column in range (0, 20):
+            temp = img.crop((column, row, column+9, row+9))
+            temp = np.array(temp)
+            temp = temp.reshape((81,))
+            convolutions[count] = temp
+            count+=1
+    #The image needs to be back between 1 and -1 before applying the filter
+    convolutions = np.array(convolutions)
+    scale = MinMaxScaler(feature_range=(-1, 1))
+    convolutions = scale.fit_transform(convolutions)
+    #Apply the filter to the receiptive field
+    for f in self.filters:
+        for x in range(0, len(convolutions)):
+            temp = convolution [x].reshape((9,9))  #Cannot be single dimention for the dot product
+            tempf = f.reshape((9,9)) #Cannot be single dimention for the dot product
+            convolve = np.dot(temp, tempf)
+            convolve = convolve.reshape((81,))
+            self.aCon[x] = a.relu(convolve) #applies the rulo activation
+            feature.map[x] = np.sum(convolve)/81
+            
+        #img = feature_map.reshape((20,20))
+        #img = Image.fromarray(img)
+        #img.show()
+        feature_maps = np.append(feature_maps, feature_map)
+    feature_maps = feature_maps.reshape(10, 400)
+    return feature_maps
+def poolOne(feature_maps):
+    pooled_featuremap = np.zeros((10,4))
+    scale = MinMaxScaler(feature_range=(0, 255))
+    count = 0
+    for m in feature_maps:
+        m = m.reshape((20, 20))
+        m = scale.fit_transform(m)
+        m = Image.fromarray(m)
+        pixel = 0
+        for row in range (0, 2):
+            temp = m.crop((column*10, row*10, (column*10)+10, (row*10)+10))
+            temp = np.array(temp)
+            temp = temp.reshape((100,))
+            max = np.max(temp)
+            pooled_featuremap[count][pixel] = max
+            pixel+=1
+    count += 1
+    
+pooled_featuremap = np.array(pooled_featuremap)
+pooled_featuremap = pooled_featuremap.reshape((10, 4))
+scale = MinMaxScaler(feature_range=(-1, 1))
+pooled_featuremap = scale.fit_transform(pooled_featuremap)
+
+return pooled_featuremap
+        
