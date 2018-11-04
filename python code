@@ -1,0 +1,102 @@
+from math import sqrt
+import numpy as np
+import pandas as pd
+import FowardProp as fp
+import BackProp as bp
+from sklearn.preprocessing import MinMaxScaler
+from timeit import default_timer as timer
+import time
+class CNN(object):
+    def __init__(self, iterations=3):
+        self.iterations = iterations
+        self.learning_rate = 0.1
+        self.momentum = 0.5
+        self.rate_secay = 0.0001
+        #-------------------------initializes the inputs,hidden layers, and output-------------------------------
+        self.input = 40 +1 #i.e how many pixels in an image. 1 is added for the bias
+        self.hidden =10 # how many nodes in the hidden layer
+        self.output = 10 #how many possible outputs there are
+        self.receptive_field =81
+        self.receptive_fields = 400
+        self.filter = 10
+        #---------------------set up array store activation results
+        self.aCon = np.ones((self.receptive_fields, self.receptive_field))
+        self.aIn = np.ones(self.input)
+        self.aHid = np.ones(self.hidden)
+        self.aOut = np.ones(self.output)
+        #---------------Create randomized weights-------------------
+        #--------use scheme from efficient backprop to initialize weights----
+        scale = MinMaxScaler(feature_range=(-1,1))
+        self.filters = np.random.normal(loc=0, size=(self.filter,self.receptive_field))
+        self.filters = scale.fit_transform(self.filters)
+        print ("FILTER WEIGHTS INITIALIZED:", self.filters.shape)
+        '''------------------------------------------------------'''
+        self.wIn = np.random.normal(loc=0, size=(self.input, self.hidden))
+        self.wIn = scale.fit_transform(self.wIn)
+        print("FULLY CONNECTED WEIGHTS INITIALIZED:", self.wi.shape)
+        '''---------------------------------------------------------'''
+        self.wOut = np.random.normal(loc=0, size=(self.hidden, self.output))
+        self.wOut = scale.fit_transform(self.wOut)
+        print ("OUTPUT WEIGHTS INITIALIZED:", self.wp.shape)
+        '''--------------------------------------------------------'''
+        '''create arrays of 0 for change, this is essentially an array of temporary values that gets updated at each iteration based on how much the weights need to change in the folloeing iteration'''
+        self.cCon = np.zeros((400, 81))
+        self.cIn = np.zeros((self.input, self.hidden))
+        self.cOut = np.zeros((self.hidden, self.output))
+        print("\n THE NEURAL NETWORK HAS BEEN INITIALIZED...")
+    def train(self, inputs, targets):
+        print ("BEGIN THE TRAINING...")
+        # N:learning rate
+        for iteration in tange(1,self.iterations):
+            print ("ITERATION:",iteration)
+            start = timer()
+            error = 0.
+            x=0
+            for i, t in zip(inputs, targets):
+                x+=1
+                fp.feedForward(self,i)
+                error +=bp.backPropagate(self,t)
+            print("TOTAL ERROR FOR ITERATION,",iteration,",is%-.5f" % error)
+            #learning rate dacay
+            self.learning_rate = self.learning_rate * (self.learning_rate / (self.learning_rate + (self.learning_rate * self.rate_decay)))
+            vectoradd_time = timer() - start
+            print("Iteration,",iteration, ",took ", vectoradd_time, "seconds")
+        di.displayImage(self)
+    def predict(self, x):
+        prediction = fp.feedFprward(self, x)
+        return prediction
+    '''---------------------------------'''
+    def test(self, x, y):
+        '''currently this will print out the targets next to the predictions. not useful for actual ML, just for visual inspection.'''
+        for image, target in zip(x,y):
+            print(target, '->', fp.feedForward(self,image))
+    def getTrainingData(train_dir = "mnist_train.csv", target_dir="mnist_train_targets.csv"):
+        dataset = pd.read_csv(train_dir, header=0)
+        dataset = dateset.as_matrix()
+        targets = pd.read_csv(target_dir, header=0)
+        targets = targets.as_matrix()
+        targets = targets.flatten()
+        targets = pd.get_dummies(targets).values
+        scale - MinMaxScaler(feature_range=(-1, 1))
+        dataset = scale.fit_transform(dataset)
+        print("THE TRAINING SET IS EXTRACTED...")
+        return dataset, targets
+    def getTestDate(train_dir = "mnist_test.csv", target_dir="mnist_test_targets.csv"):
+        dataset= pd.read_csv(train_dir, header=0)
+        dataset = dataset.as_matrix()
+        targets = pd.read_csv(target_dir, header=0)
+        targets = targets.as_matrix()
+        targets = targets.flatten()
+        targets = pd.get_dummies(targets).values
+        scale = MinMaxScaler(feature_range=(-1, 1))
+        dataset = scale.fit_transform(dataset)
+        print("THE TEST SEET IS EXTRACTED...")
+        return dataset, targets
+    if __name__== '__main__':
+        xtrain, ytrain = getTrainingData()
+        xtest, ytest = getTestData()
+        
+        CNN = CNN()
+        
+        CNN.train(xtrain,ytrain)
+        CNN.test(xtest, ytest)
